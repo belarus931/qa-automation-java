@@ -1,4 +1,4 @@
-package JavaBasics;
+package javabasics;
 
 public class LoginChecker {
     public void checkAccess(boolean isEmailVerified, boolean hasValidPassword){

@@ -1,4 +1,4 @@
-package JavaBasics;
+package javabasics;
 
 public class Grade {
     public void getGrade(int score) {

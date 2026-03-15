@@ -1,4 +1,4 @@
-package JavaBasics;
+package javabasics;
 
 public class Factorial {
     public long factorial(int n){

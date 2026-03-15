@@ -1,7 +1,9 @@
 package apitests;
 
+import apiclients.ApiClient;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.response.Response;
+import models.ApiResponse;
 import models.Post;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -10,9 +12,12 @@ import java.util.List;
 
 import static io.restassured.RestAssured.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DisplayName("Тесты с использованием модели Post")
 public class PostModelTest extends BaseApiTest {
+
+    ApiClient apiClient = new ApiClient();
 
     // ==================== 1. ОТПРАВКА ОБЪЕКТА ====================
 
@@ -21,27 +26,17 @@ public class PostModelTest extends BaseApiTest {
     public void testCreatePostWithObject() {
         // Создаём объект
         Post newPost = new Post(1, "Мой заголовок", "Моё содержание");
-
-        // Отправляем объект — Jackson сам превратит его в JSON
-        Post createdPost = given()
-                .contentType("application/json")
-                .body(newPost)
-                .when()
-                .post("/posts")
-                .then()
-                .statusCode(201)
-                .extract()
-                .as(Post.class);  // JSON → объект
+        ApiResponse<Post> newlyCreatedPost = apiClient.createPost(newPost);
 
         // Проверяем через JUnit assertions
         assertAll("Проверка созданного поста",
-                () -> assertNotNull(createdPost.getId(), "ID должен быть сгенерирован"),
-                () -> assertEquals(newPost.getTitle(), createdPost.getTitle()),
-                () -> assertEquals(newPost.getBody(), createdPost.getBody()),
-                () -> assertEquals(newPost.getUserId(), createdPost.getUserId())
+                () -> assertNotNull(newlyCreatedPost.getData().getId(), "ID должен быть сгенерирован"),
+                () -> assertEquals(newPost.getTitle(), newlyCreatedPost.getData().getTitle()),
+                () -> assertEquals(newPost.getBody(), newlyCreatedPost.getData().getBody()),
+                () -> assertEquals(newPost.getUserId(), newlyCreatedPost.getData().getUserId())
         );
 
-        System.out.println("Созданный пост: " + createdPost);
+        System.out.println("Созданный пост: " + newlyCreatedPost);
     }
 
     // ==================== 2. ПОЛУЧЕНИЕ ОДНОГО ОБЪЕКТА ====================
@@ -49,19 +44,13 @@ public class PostModelTest extends BaseApiTest {
     @Test
     @DisplayName("GET /posts/1 — получение объекта")
     public void testGetPostAsObject() {
-        Post post = given()
-                .get("/posts/1")
-                .then()
-                .statusCode(200)
-                .extract()
-                .as(Post.class);
+        ApiResponse<Post> response = apiClient.getPostById(1);
 
-        assertAll("Проверка полученного поста",
-                () -> assertEquals(1, post.getId()),
-                () -> assertEquals(1, post.getUserId()),
-                () -> assertNotNull(post.getTitle()),
-                () -> assertNotNull(post.getBody())
-        );
+        Post post = response.getData();
+        assertEquals(1, post.getId());
+        assertEquals(1, post.getUserId());
+        assertNotNull(post.getBody());
+        assertNotNull(post.getTitle());
 
         System.out.println("Полученный пост: " + post);
     }
@@ -71,24 +60,15 @@ public class PostModelTest extends BaseApiTest {
     @Test
     @DisplayName("GET /posts — получение списка объектов")
     public void testGetPostsAsList() {
-        // Способ 1: через TypeRef (рекомендуется)
-        List<Post> posts = given()
-                .get("/posts")
-                .then()
-                .statusCode(200)
-                .extract()
-                .as(new TypeRef<List<Post>>() {});
+        ApiResponse<List<Post>> posts = apiClient.getAllPosts();
+        int count = posts.getData().size();
+        assertEquals(100, count, "Должно быть 100 постов");
+        Post firstPost = posts.getData().getFirst();
+        assertNotNull(firstPost);
+        assertNotNull(firstPost.getTitle());
+        assertEquals(1, firstPost.getId());
 
-        // Способ 2: через jsonPath (тоже работает)
-        // List<Post> posts = given().get("/posts").jsonPath().getList("", Post.class);
-
-        assertAll("Проверка списка",
-                () -> assertEquals(100, posts.size(), "Должно быть 100 постов"),
-                () -> assertNotNull(posts.get(0).getTitle()),
-                () -> assertTrue(posts.get(0).getId() > 0)
-        );
-
-        System.out.println("Первый пост в списке: " + posts.get(0));
+        System.out.println("Первый пост в списке: " + firstPost.getBody());
     }
 
     // ==================== 4. ОБНОВЛЕНИЕ ЧЕРЕЗ ОБЪЕКТ ====================
@@ -96,21 +76,12 @@ public class PostModelTest extends BaseApiTest {
     @Test
     @DisplayName("PUT /posts/1 — обновление через объект")
     public void testUpdatePostWithObject() {
-        // Создаём объект с обновлёнными данными
-        Post updatedPost = new Post( 1, "Обновлённый заголовок", "Обновлённое содержание");
 
-        Post result = given()
-                .contentType("application/json")
-                .body(updatedPost)
-                .when()
-                .put("/posts/1")
-                .then()
-                .statusCode(200)
-                .extract()
-                .as(Post.class);
+        Post updatedPost = new Post (1, "Обновлённый заголовок", "Обновлённое содержание");
+        ApiResponse <Post> updatedPostResponse = apiClient.updatePost(1, updatedPost);
 
-        assertEquals(updatedPost.getTitle(), result.getTitle());
-        assertEquals(updatedPost.getBody(), result.getBody());
+        assertEquals(updatedPost.getTitle(), updatedPostResponse.getData().getTitle());
+        assertEquals(updatedPost.getBody(), updatedPostResponse.getData().getBody());
     }
 
     // ==================== 5. РАБОТА С RESPONSE ====================
@@ -118,21 +89,8 @@ public class PostModelTest extends BaseApiTest {
     @Test
     @DisplayName("Извлечение Response и преобразование")
     public void testResponseToObject() {
-        Response response = given()
-                .get("/posts/1")
-                .then()
-                .statusCode(200)
-                .extract()
-                .response();
-
-        // Извлекаем из Response
-        Post post = response.as(Post.class);
-        String contentType = response.contentType();
-        long time = response.time();
-
-        System.out.println("Content-Type: " + contentType);
-        System.out.println("Время ответа: " + time + " ms");
-        System.out.println("Пост: " + post);
+        ApiResponse<Post> response = apiClient.getPostById(1);
+        System.out.println(response);
     }
 
     // ==================== 6. ПОИСК ПО УСЛОВИЮ ====================
@@ -140,15 +98,10 @@ public class PostModelTest extends BaseApiTest {
     @Test
     @DisplayName("Поиск постов пользователя через объекты")
     public void testFindPostsByUserId() {
-        List<Post> allPosts = given()
-                .get("/posts")
-                .then()
-                .extract()
-                .jsonPath()
-                .getList("", Post.class);
+        ApiResponse<List<Post>> posts = apiClient.getAllPosts();
 
         // Используем Stream API для фильтрации
-        List<Post> userPosts = allPosts.stream()
+        List<Post> userPosts = posts.getData().stream()
                 .filter(post -> post.getUserId() == 1)
                 .toList();
 

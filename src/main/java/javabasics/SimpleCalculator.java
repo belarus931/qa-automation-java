@@ -1,4 +1,4 @@
-package JavaBasics;
+package javabasics;
 
 public class SimpleCalculator {
     public void calculate(int a, int b, char operation) {

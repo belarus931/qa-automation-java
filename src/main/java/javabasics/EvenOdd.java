@@ -1,4 +1,4 @@
-package JavaBasics;
+package javabasics;
 
 public class EvenOdd {
     public void checkEvenOdd(int number){

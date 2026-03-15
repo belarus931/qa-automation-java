@@ -1,4 +1,4 @@
-package JavaBasics;
+package javabasics;
 
 public class SumCalculator {
     int i = 0;

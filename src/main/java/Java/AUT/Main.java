@@ -1,6 +1,6 @@
 package Java.AUT;
 
-import JavaBasics.*;
+import javabasics.*;
 
 import java.util.*;
 

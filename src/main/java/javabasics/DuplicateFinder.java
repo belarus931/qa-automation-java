@@ -1,6 +1,5 @@
-package JavaBasics;
+package javabasics;
 
-import javax.lang.model.element.Element;
 import java.util.*;
 
 public class DuplicateFinder {

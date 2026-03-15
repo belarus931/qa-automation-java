@@ -1,4 +1,4 @@
-package JavaBasics;
+package javabasics;
 
 public class AgeCalculator {
     public void calculateAge(int birthYear, int currentYear){
