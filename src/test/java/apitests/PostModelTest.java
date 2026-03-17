@@ -5,8 +5,11 @@ import io.restassured.common.mapper.TypeRef;
 import io.restassured.response.Response;
 import models.ApiResponse;
 import models.Post;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import testdata.TestDataFactory;
 
 import java.util.List;
 
@@ -18,6 +21,27 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class PostModelTest extends BaseApiTest {
 
     ApiClient apiClient = new ApiClient();
+    private Post testPost;
+
+    @BeforeEach
+    public void setUp() {
+        System.out.println("  📝 [Child] Создаём тестовый пост для теста");
+        ApiResponse<Post> response = apiClient.createPost(
+                TestDataFactory.createDefaultPost()
+        );
+        testPost = response.getData();
+        assertNotNull(testPost.getId(), "Тестовый пост должен быть создан");
+        System.out.println("  ✅ Тестовый пост создан с ID: " + testPost.getId());
+    }
+    @AfterEach
+    public void tearDown() {
+        System.out.println("  🧹 [Child] Очистка после теста");
+        if (testPost != null && testPost.getId() > 0) {
+            // Можно добавить удаление тестового поста, если нужно
+            // apiClient.deletePost(testPost.getId());
+            System.out.println("  ✅ Тестовый пост с ID " + testPost.getId() + " будет удалён");
+        }
+    }
 
     // ==================== 1. ОТПРАВКА ОБЪЕКТА ====================
 
@@ -25,18 +49,28 @@ public class PostModelTest extends BaseApiTest {
     @DisplayName("POST /posts — создание поста через объект")
     public void testCreatePostWithObject() {
         // Создаём объект
-        Post newPost = new Post(1, "Мой заголовок", "Моё содержание");
+        Post newPost = TestDataFactory.createCustomPost(1, "Мой заголовок", "Моё содержание");
         ApiResponse<Post> newlyCreatedPost = apiClient.createPost(newPost);
 
         // Проверяем через JUnit assertions
         assertAll("Проверка созданного поста",
-                () -> assertNotNull(newlyCreatedPost.getData().getId(), "ID должен быть сгенерирован"),
+                () -> assertNotNull(newlyCreatedPost.getData().getId() > 0, "ID должен быть положительным числом"),
                 () -> assertEquals(newPost.getTitle(), newlyCreatedPost.getData().getTitle()),
                 () -> assertEquals(newPost.getBody(), newlyCreatedPost.getData().getBody()),
                 () -> assertEquals(newPost.getUserId(), newlyCreatedPost.getData().getUserId())
         );
 
         System.out.println("Созданный пост: " + newlyCreatedPost);
+    }
+    @Test
+    @DisplayName("POST /posts — создание поста со случайными данными")
+    public void testCreateRandomPost() {
+        Post randomPost = TestDataFactory.createRandomPost();
+
+        ApiResponse<Post> response = apiClient.createPost(randomPost);
+
+        assertEquals(201, response.getStatusCode());
+        assertNotNull(response.getData().getId());
     }
 
     // ==================== 2. ПОЛУЧЕНИЕ ОДНОГО ОБЪЕКТА ====================
