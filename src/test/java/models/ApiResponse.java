@@ -1,6 +1,8 @@
 package models;
 
+import io.restassured.response.Response;
 import java.util.List;
+import static io.restassured.RestAssured.given;
 
 public class ApiResponse<T> {
 
@@ -29,4 +31,5 @@ public class ApiResponse<T> {
     public boolean isSuccessful() {
         return statusCode >= 200 && statusCode < 300;
     }
+
 }

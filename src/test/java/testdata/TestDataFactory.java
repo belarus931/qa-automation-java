@@ -2,6 +2,8 @@ package testdata;
 
 import models.Post;
 import models.Comment;
+import models.User;
+
 import java.util.concurrent.ThreadLocalRandom;
 
 public class TestDataFactory {
@@ -82,4 +84,13 @@ public class TestDataFactory {
     public static Comment createCommentWithEmptyBody() {
         return new Comment(1, "Empty Body User", "valid@email.com", "");
     }
+    // ============= USERS =============
+    /**
+     * Создаёт дефолтного User
+     */
+
+    public static User createDefaultUser (){
+        return new User("Default Name", "defaultUserName", "default@email.test","+375297777777", "defaultWebSite,com");
+    }
+
 }

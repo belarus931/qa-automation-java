@@ -4,6 +4,8 @@ import io.restassured.response.Response;
 import models.ApiResponse;
 import models.Comment;
 import models.Post;
+import models.User;
+import utils.ApiEndpoints;
 
 import java.util.List;
 
@@ -18,93 +20,89 @@ public class ApiClient {
         List<T> data = response.jsonPath().getList("", clazz);
         return new ApiResponse<>(response.statusCode(), data, response.time());
     }
+    private <T> ApiResponse<T> getById(String endpoint, int id, Class<T> clazz) {
+        Response response = given()
+                .pathParam("id", id)
+                .get(endpoint);
+
+        T data = response.as(clazz);
+        return new ApiResponse<>(response.statusCode(), data, response.time());
+    }
+
+    private <T> ApiResponse<T> create(String endpoint, Object requestBody, Class<T> responseClass) {
+        Response response = given()
+                .contentType("application/json")
+                .body(requestBody)
+                .post(endpoint);
+
+        T data = response.as(responseClass);
+        return new ApiResponse<>(response.statusCode(), data, response.time());
+    }
+    private <T> ApiResponse<T> update(String endpoint, int id, Object requestBody, Class<T> responseClass) {
+        Response response = given()
+                .contentType("application/json")
+                .pathParam("id", id)
+                .body(requestBody)
+                .put(endpoint);
+
+        T data = response.as(responseClass);
+        return new ApiResponse<>(response.statusCode(), data, response.time());
+    }
+    private <T> ApiResponse<T> delete (String endpoint, int id) {
+        Response response = given()
+                .contentType("application/json")
+                .pathParam("id", id)
+                .delete(endpoint);
+
+        return new ApiResponse<>(response.statusCode(), null, response.time());
+    }
 
     public ApiResponse<List<Comment>> getAllComments() {
-        return getAll("/comments", Comment.class);
+        return getAll(ApiEndpoints.COMMENTS, Comment.class);
     }
 
     public ApiResponse<Comment> getCommentById(int id) {
-        Response response = given()
-                .pathParam("id", id)
-                .get("/comments/{id}");
-
-        // Для одного объекта используем .as() вместо jsonPath()
-        Comment comment = response.as(Comment.class);
-
-        return new ApiResponse<>(
-                response.statusCode(),
-                comment,
-                response.time()
-        );
+        return getById(ApiEndpoints.COMMENT_BY_ID, id, Comment.class);
     }
 
     // ============= POSTS =============
 
     public ApiResponse<List<Post>> getAllPosts() {
-        return getAll("/posts", Post.class);
+        return getAll(ApiEndpoints.POSTS, Post.class);
 
     }
 
     public ApiResponse<Post> getPostById(int id) {
-        Response response = given()
-                .pathParam("id", id)
-                .get("/posts/{id}");
-
-        Post post = response.as(Post.class);
-
-        return new ApiResponse<>(
-                response.statusCode(),
-                post,
-                response.time()
-        );
+        return getById(ApiEndpoints.POST_BY_ID, id, Post.class);
     }
 
     // Метод для создания поста (POST)
     public ApiResponse<Post> createPost(Post newPost) {
-        Response response = given()
-                .contentType("application/json")
-                .body(newPost)
-                .post("/posts");
-
-        Post createdPost = response.as(Post.class);
-
-        return new ApiResponse<>(
-                response.statusCode(),
-                createdPost,
-                response.time()
-        );
+        return create(ApiEndpoints.POSTS, newPost, Post.class);
     }
 
     // Метод для обновления поста (PUT)
     public ApiResponse<Post> updatePost(int id, Post updatedPost) {
-        Response response = given()
-                .contentType("application/json")
-                .pathParam("id", id)
-                .body(updatedPost)
-                .put("/posts/{id}");
-
-        Post post = response.as(Post.class);
-
-        return new ApiResponse<>(
-                response.statusCode(),
-                post,
-                response.time()
-        );
+      return update(ApiEndpoints.POST_BY_ID, id, updatedPost, Post.class);
     }
 
     // Метод для удаления поста (DELETE)
-    public ApiResponse<Void> deletePost(int id) {
-        Response response = given()
-                .pathParam("id", id)
-                .delete("/posts/{id}");
-
-        return new ApiResponse<>(
-                response.statusCode(),
-                null,
-                response.time()
-        );
+    public ApiResponse<Post> deletePost(int id) {
+        return delete(ApiEndpoints.POST_BY_ID, id);
     }
 
     // ============= МЕТОДЫ ДЛЯ USERS =============
-    // TODO: добавить методы для users
+    public ApiResponse<List<User>> getAllUsers() {
+        return getAll(ApiEndpoints.USERS, User.class);
+    }
+
+    public ApiResponse<User> getUserById(int id) {
+        return getById (ApiEndpoints.USER_BY_ID, id, User.class);
+    }
+
+    public ApiResponse<User> updateUserById (int id, User updatedUser){
+        return  update(ApiEndpoints.USER_BY_ID,id,updatedUser, User.class);
+
+    }
+
 }
