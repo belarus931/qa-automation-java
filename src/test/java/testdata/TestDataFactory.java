@@ -90,7 +90,7 @@ public class TestDataFactory {
      */
 
     public static User createDefaultUser (){
-        return new User("Default Name", "defaultUserName", "default@email.test","+375297777777", "defaultWebSite,com");
+        return new User("Default Name","defaultUserName", "default@email.test","+375297777777", "defaultWebSite,com");
     }
 
 }

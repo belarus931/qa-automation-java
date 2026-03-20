@@ -8,6 +8,7 @@ public class User {
     private String phone;
     private String website;
 
+    public User(){}
     public User(String name, String username, String email, String phone, String website){}
 
     public String getWebsite() {
