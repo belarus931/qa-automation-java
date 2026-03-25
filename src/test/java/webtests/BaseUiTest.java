@@ -13,7 +13,7 @@ public class BaseUiTest {
         Configuration.browser = "chrome";
         Configuration.headless = false;  // true для CI/CD
         Configuration.timeout = 10000;   // таймаут 10 секунд
-        Configuration.baseUrl = "https://www.google.com";
+        Configuration.baseUrl = "https://duckduckgo.com";
 
         System.out.println("🌐 Настройка браузера: " + Configuration.browser);
     }

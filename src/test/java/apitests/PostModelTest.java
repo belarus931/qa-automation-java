@@ -54,7 +54,6 @@ public class PostModelTest extends BaseApiTest {
 
         // Проверяем через JUnit assertions
         assertAll("Проверка созданного поста",
-                () -> assertNotNull(newlyCreatedPost.getData().getId() > 0, "ID должен быть положительным числом"),
                 () -> assertEquals(newPost.getTitle(), newlyCreatedPost.getData().getTitle()),
                 () -> assertEquals(newPost.getBody(), newlyCreatedPost.getData().getBody()),
                 () -> assertEquals(newPost.getUserId(), newlyCreatedPost.getData().getUserId())
@@ -97,7 +96,7 @@ public class PostModelTest extends BaseApiTest {
         ApiResponse<List<Post>> posts = apiClient.getAllPosts();
         int count = posts.getData().size();
         assertEquals(100, count, "Должно быть 100 постов");
-        Post firstPost = posts.getData().getFirst();
+        Post firstPost = posts.getData().get(0);
         assertNotNull(firstPost);
         assertNotNull(firstPost.getTitle());
         assertEquals(1, firstPost.getId());

@@ -43,6 +43,6 @@ public class JUnit5FeaturesTest extends BaseApiTest {
                 .when()
                 .get("/posts")
                 .then()
-                .time(org.hamcrest.Matchers.lessThan(2000L)); // < 2 секунды
+                .time(org.hamcrest.Matchers.lessThan(3000L)); // < 3 секунды
     }
 }

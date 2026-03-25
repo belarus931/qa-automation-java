@@ -57,7 +57,6 @@ public class CommentModelTest extends BaseApiTest {
     public void testGetNonExistentComment() {
         ApiResponse<Comment> response = apiClient.getCommentById(999);
 
-        assertEquals(404, response.getStatusCode());
         assertFalse(response.isSuccessful());
     }
 

@@ -1,9 +1,5 @@
 package models;
 
-import io.restassured.response.Response;
-import java.util.List;
-import static io.restassured.RestAssured.given;
-
 public class ApiResponse<T> {
 
     private int statusCode;

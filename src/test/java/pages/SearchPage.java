@@ -6,21 +6,22 @@ import org.openqa.selenium.By;
 
 import static com.codeborne.selenide.Selenide.*;
 
-public class GooglePage {
+public class SearchPage {
 
     // Элементы страницы
     private SelenideElement searchInput = $(By.name("q"));
-    private SelenideElement firstResult = $("h3");
+    private SelenideElement firstResult = $("article[data-testid='result']");
+
 
     // Действия
-    public GooglePage open() {
-        Selenide.open("/");  // ← теперь это статический метод Selenide, а не рекурсия
+    public SearchPage open() {
+        Selenide.open("/");
         return this;
     }
 
-    public GooglePage searchFor(String query) {
+    public SearchResultsPage searchFor(String query) {
         searchInput.setValue(query).pressEnter();
-        return this;
+        return new SearchResultsPage();  // ← возвращаем страницу результатов
     }
 
     public boolean hasResults() {
