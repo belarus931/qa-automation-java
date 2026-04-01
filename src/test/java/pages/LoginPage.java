@@ -2,6 +2,8 @@ package pages;
 
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
+import io.qameta.allure.Step;
+
 import static com.codeborne.selenide.Selenide.*;
 import static com.codeborne.selenide.Condition.*;
 
@@ -17,12 +19,13 @@ public class LoginPage {
         return this;
     }
 
+    @Step("Set Name")
     public LoginPage setUsername(String username) {
         usernameInput.clear();
         usernameInput.setValue(username);
         return this;
     }
-
+    @Step("Set Password")
     public LoginPage setPassword(String password) {
         passwordInput.clear();
         passwordInput.setValue(password);

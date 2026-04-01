@@ -1,15 +1,19 @@
 package webtests;
 
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import pages.LoginPage;
-
+import io.qameta.allure.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@DisplayName("Тесты формы входа")
+@Epic("UI Тестирование")
+@Feature("Авторизация")
 public class LoginTest extends BaseUiTest {
 
     @Test
+    @Tag("smoke")
+    @Story("Успешный вход")
     @DisplayName("Успешный вход")
     void successfulLogin() {
         LoginPage loginPage = new LoginPage();
@@ -23,6 +27,8 @@ public class LoginTest extends BaseUiTest {
     }
 
     @Test
+    @Tag("smoke")
+    @Story("Неуспешный вход")
     @DisplayName("Неуспешный вход (неверный пароль)")
     void unsuccessfulLogin() {
         LoginPage loginPage = new LoginPage();

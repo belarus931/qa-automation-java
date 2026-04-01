@@ -15,7 +15,7 @@ public class SearchPage {
 
     // Действия
     public SearchPage open() {
-        Selenide.open("/");
+        Selenide.open("https://duckduckgo.com");
         return this;
     }
 

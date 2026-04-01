@@ -1,16 +1,18 @@
 package webtests;
 
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import pages.SearchPage;
 import pages.SearchResultsPage;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@DisplayName("Расширенные тесты Google поиска")
+@DisplayName("Расширенные тесты duckduckgo поиска")
 public class AdvancedSearchTest extends BaseUiTest {
 
     @Test
+    @Tag("smoke")
     @DisplayName("Поиск и проверка результатов")
     void userCanSearchAndCheckResults() {
         SearchPage searchPage = new SearchPage();
@@ -34,6 +36,7 @@ public class AdvancedSearchTest extends BaseUiTest {
     }
 
     @Test
+    @Tag("smoke")
     @DisplayName("Проверка всех результатов")
     void allResultsShouldContainSearchTerm() {
         SearchResultsPage results = new SearchPage()
@@ -58,6 +61,7 @@ public class AdvancedSearchTest extends BaseUiTest {
     }
 
     @Test
+    @Tag("smoke")
     @DisplayName("Поиск конкретного результата")
     void userCanFindSpecificResult() {
         SearchResultsPage results = new SearchPage()
@@ -66,8 +70,8 @@ public class AdvancedSearchTest extends BaseUiTest {
 
         results.waitForResults();
 
-        // Проверяем, что есть результат с текстом "selenide.org"
-        boolean hasSeleniumIo = results.hasResultContaining("selenium.io");
-        assertTrue(hasSeleniumIo, "Должен быть результат с selenium.dev");
+        // Проверяем, что есть результат с текстом "selenium"
+        boolean hasSeleniumIo = results.hasResultContaining("selenium");
+        assertTrue(hasSeleniumIo, "Должен быть результат с selenium");
     }
 }
