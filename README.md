@@ -8,32 +8,35 @@
 
 - Java 17
 - Maven
-- JUnit 5
-- RestAssured 5.3
+- JUnit 5.9.2
+- RestAssured 5.5
 - Selenide 7.14
-- Hamcrest
-- Jackson Databind
-- JSON Schema Validator
+- Hamcrest 2.2
+- Jackson Databind 2.15.2
+- JSON Schema Validator (RestAssured)
+- Allure 2.27 (JUnit 5, RestAssured) + AspectJ (для встраивания отчётов)
 
 ## Структура проекта
 
 ```
 src/
-├── main/java/javabasics/         # Основы Java
-│   ├── AgeCalculator             # Вычисление возраста
-│   ├── DuplicateFinder           # Поиск дубликатов в коллекции
-│   ├── EvenOdd                   # Чётное / нечётное
-│   ├── Factorial                 # Факториал числа
-│   ├── Grade                     # Оценка по баллам
-│   ├── Greeting                  # Приветствие
-│   ├── ListProcessor             # Фильтрация списка по длине имени
-│   ├── LoginChecker              # Проверка доступа (email + пароль)
-│   ├── MultiplicationTable       # Таблица умножения
-│   ├── SimpleCalculator          # Калькулятор (+, −, ×, ÷)
-│   ├── SumCalculator             # Сумма 1..N
-│   ├── UniqueWords               # Уникальные слова
-│   ├── WeekDay                   # День недели по номеру
-│   └── WordCounter               # Подсчёт слов
+├── main/java/
+│   ├── Java/AUT/Main.java        # Точка входа для ручного запуска примеров javabasics
+│   └── javabasics/               # Основы Java
+│       ├── AgeCalculator         # Вычисление возраста
+│       ├── DuplicateFinder       # Поиск дубликатов в коллекции
+│       ├── EvenOdd               # Чётное / нечётное
+│       ├── Factorial             # Факториал числа
+│       ├── Grade                 # Оценка по баллам
+│       ├── Greeting              # Приветствие
+│       ├── ListProcessor         # Фильтрация списка по длине имени
+│       ├── LoginChecker          # Проверка доступа (email + пароль)
+│       ├── MultiplicationTable   # Таблица умножения
+│       ├── SimpleCalculator      # Калькулятор (+, −, ×, ÷)
+│       ├── SumCalculator         # Сумма 1..N
+│       ├── UniqueWords           # Уникальные слова
+│       ├── WeekDay               # День недели по номеру
+│       └── WordCounter           # Подсчёт слов
 │
 └── test/java/
     ├── apiclients/
@@ -54,15 +57,17 @@ src/
     │   ├── JUnit5FeaturesTest    # @DisplayName, @Disabled, параметризация, время ответа
     │   └── ParameterizedTestsTest# Параметризованные тесты (ids, ресурсы, CSV)
     ├── webtests/
-    │   ├── BaseUiTest            # Настройка Selenide (browser, timeout, baseUrl)
-    │   ├── FirstSelenideTest     # Первый UI-тест: поиск и проверка результатов
-    │   ├── GoogleSearchTest      # Поиск через GooglePage + проверка результатов
-    │   ├── GoogleSearchAdvancedTest # ElementsCollection: фильтрация, подсчёт, тексты
+    │   ├── BaseUiTest            # Selenide: настройки из application.properties
+    │   ├── AdvancedSearchTest    # DuckDuckGo: поиск, ElementsCollection, фильтрация
+    │   ├── CheckboxesTest        # Чекбоксы на the-internet.herokuapp.com
+    │   ├── DropdownTest          # Выпадающий список на the-internet.herokuapp.com
     │   └── LoginTest             # Логин на the-internet.herokuapp.com
     ├── pages/
-    │   ├── GooglePage            # Page Object: страница поиска (DuckDuckGo)
-    │   ├── GoogleResultsPage     # Page Object: результаты поиска (ElementsCollection)
-    │   └── LoginPage             # Page Object: страница логина (Heroku)
+    │   ├── SearchPage            # Page Object: поиск (DuckDuckGo)
+    │   ├── SearchResultsPage     # Page Object: результаты поиска
+    │   ├── LoginPage             # Page Object: страница логина (Heroku)
+    │   ├── DropdownPage          # Page Object: /dropdown (Heroku)
+    │   └── CheckboxesPage        # Page Object: /checkboxes (Heroku)
     ├── models/
     │   ├── ApiResponse           # Обёртка ответа: статус, body, время
     │   ├── Post                  # DTO для posts API
@@ -73,6 +78,10 @@ src/
     │   └── JsonReader            # Чтение JSON из файлов (Jackson)
     └── testdata/
         └── TestDataFactory       # Фабрика тестовых данных (Post, Comment, User)
+
+src/test/resources/
+├── application.properties        # browser, headless, timeout, base.url (см. BaseUiTest)
+└── testdata/                     # JSON/CSV для API-тестов
 ```
 
 ## Реализованные тесты
@@ -87,13 +96,15 @@ src/
 - Параметризованные тесты (ValueSource, CsvSource, MethodSource)
 - Проверка времени ответа и JSON Schema
 
-### UI тесты (Selenide + DuckDuckGo)
+### UI тесты (Selenide)
 
-- Поиск и проверка результатов (SelenideElement)
-- Работа с коллекциями элементов (ElementsCollection)
-- Фильтрация результатов по тексту
-- Page Object паттерн (GooglePage → GoogleResultsPage)
-- Логин-форма на the-internet.herokuapp.com
+- Поиск в DuckDuckGo: результаты, коллекции элементов, фильтрация по тексту (`AdvancedSearchTest`, `SearchPage` / `SearchResultsPage`)
+- Сценарии на [the-internet.herokuapp.com](https://the-internet.herokuapp.com): логин, dropdown, чекбоксы
+- Часть UI-тестов помечена тегами JUnit 5 (`@Tag("smoke")`, `@Tag("regression")`); в Allure для логина используются `@Epic` / `@Feature` / `@Story`
+
+### Настройка браузера (UI)
+
+Параметры читаются из `src/test/resources/application.properties` (`base.url`, `browser`, `headless`, `timeout`). Страницы Heroku и DuckDuckGo открываются по полным URL в Page Object; при отсутствии файла `BaseUiTest` подставляет значения по умолчанию (в коде — DuckDuckGo как `base.url`).
 
 ## Запуск
 
@@ -106,4 +117,17 @@ mvn test -Dtest="apitests.*"
 
 # Только UI тесты
 mvn test -Dtest="webtests.*"
+
+# По тегу JUnit 5 (пример: только smoke)
+mvn test -Dgroups=smoke
 ```
+
+## Allure-отчёт
+
+После прогона тестов результаты пишутся в `target/allure-results`. Просмотр отчёта:
+
+```bash
+mvn allure:serve
+```
+
+Либо сгенерировать статический отчёт: `mvn allure:report` (HTML в `target/site/allure-maven-plugin`).
